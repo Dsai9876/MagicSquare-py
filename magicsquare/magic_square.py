@@ -6,6 +6,9 @@ magic_square.py
 Displays a solution to a Magic Square of a given size
 using regular or prime numbers using the brute force method
 
+Usage:
+magic_square.py <size> <prime_#s_only=y|n>
+e.g.: magic_square.py 6 n
 v0.1
     * Initial version
 """
@@ -53,13 +56,25 @@ def indices_permutations(square, indices):
     to_permute = [square[i] for i in indices]
     return itertools.permutations(to_permute)
 
-def solve_square(size, magic_num, numbers):
+def solve_square(size, prime_only):
     square_size = size * size
+
+    if prime_only:
+        start = 3
+        numbers = [p for p in range(start, square_size, 2) if is_prime(p)]
+    else:
+        start = 1
+        numbers = [i for i in range(start, (square_size) + 1)]
+
     rows = [[j for j in range(i*size, size*(i+1))] for i in range(0, size)]
     cols = [[j for j in range(i, (square_size)+i, size)] for i in range(0, size)]
     diags = []
     diags.append([i for i in range(0, (size+1)*size, size + 1)])
     diags.append([i for i in range(0, (size-1)*size, size - 1)])
+
+    magic_num = int(sum(numbers)/size)
+    
+
     perms_per_row = 1
     for i in range(size, 0, -1):
         perms_per_row *= i
@@ -74,6 +89,7 @@ def solve_square(size, magic_num, numbers):
     # DEBUG
     print('Square Size: {}'.format(square_size))
     print('Numbers: {}'.format(numbers))
+    print('Magic Number: {}'.format(magic_num))
     print('Initial square:')
     print_square(square, size)
     # END DEBUG
@@ -128,20 +144,14 @@ def solve_square(size, magic_num, numbers):
 
 def main(args):
     if len(args) != 3:
-        return 'Usage: magic_square.py <size> <magic_number> <prime_only:y|n>'
+        return 'Usage: magic_square.py <size> <prime_only:y|n>'
 
     size = int(args[0])
-    magic_num = int(args[1])
-
+    prime_only = False
     if args[2].lower() == 'y':
-        start = 3
-        numbers = [p for p in range(start, size*size, 2) if is_prime(p)]
-    else:
-        start = 1
-        numbers = [i for i in range(start, (size*size) + 1)]
+        prime_only = True
 
-
-    (answer, solved) = solve_square(size, magic_num, numbers)
+    (answer, solved) = solve_square(size, prime_only)
 
     if solved:
         print('Solved:')
