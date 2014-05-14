@@ -3,7 +3,8 @@
 Python 3.x
 magic_square.py
 
-Displays a 6x6 Magic Square of prime numbers who's magic number is 666
+Displays a solution to a Magic Square of a given size
+using regular or prime numbers using the brute force method
 
 v0.1
     * Initial version
@@ -11,6 +12,7 @@ v0.1
 
 import sys
 import math
+import itertools
 
 __author__ = 'Kevin K. <kbknapp@gmail.com>'
 
@@ -44,143 +46,85 @@ def is_prime(n):
             return False
     return True
 
+def increment_indices(square, indices, numbers, duplicates=None):
+    pass
+
+def indices_permutations(square, indices):
+    to_permute = [square[i] for i in indices]
+    return itertools.permutations(to_permute)
+
 def solve_square(size, magic_num, numbers):
     square_size = size * size
     rows = [[j for j in range(i*size, size*(i+1))] for i in range(0, size)]
     cols = [[j for j in range(i, (square_size)+i, size)] for i in range(0, size)]
-    diag = [i for i in range(0, (size+1)*size, size + 1)]
+    diags = []
+    diags.append([i for i in range(0, (size+1)*size, size + 1)])
+    diags.append([i for i in range(0, (size-1)*size, size - 1)])
+    perms_per_row = 1
+    for i in range(size, 0, -1):
+        perms_per_row *= i
 
-    print('Square Size: {}'.format(square_size))
-    print('Numbers: {}'.format(numbers))
-
+    # Initialize the square with 0's
     square = [0 for _ in range(0, square_size)]
 
-    # Initialize the first diagnal
-    for i, d in enumerate(diag):
-        square[d] = numbers[i]
+    # Initialize the first row
+    for i in range(0, size):
+        square[i] = numbers[i]
 
+    # DEBUG
+    print('Square Size: {}'.format(square_size))
+    print('Numbers: {}'.format(numbers))
     print('Initial square:')
     print_square(square, size)
+    # END DEBUG
 
-    diagnal_tries = 0
-    increment_diag = False
-    divisor = 1
-    for i in range(0, size):
-        divisor *= len(numbers) - i
-    while True:
-        percent = int(diagnal_tries/divisor)
-        print('{}'.format([square[i] for i in diag]))
-        #sys.stdout.write('\r')
-        #sys.stdout.write('[%-100s] %d%%' % ('='*percent, percent))
-        #sys.stdout.flush()
-        solved = False
-        diagnal_tries += 1
-        if sum_indices(square, diag) == magic_num and not increment_diag:
-            # Diagnal matches, we have a maybe...
-            # Set and check rows
-            break_from_rows = False
-            for i, row in enumerate(rows):
-                check_cols = False
-                if break_from_rows:
-                    break
-                # Initialize the row
-                if 0 in [square[r] for r in row]:
-                    j = 0
-                    for n in numbers:
-                        if rows[i][j] in diag:
-                            j += 1
-                            if j == len(row):
-                                break
-                        if n in square:
-                            continue
-                        square[rows[i][j]] = n
-                        j += 1
-                        if j == len(row):
-                            break
-                if sum_indices(square, row) == magic_num:
-                    check_cols = True
-                    continue
-                else:
-                    check_cols = False
-                    # Increment row
-                    keep_going = True
-                    rr_i = len(row) - 1
-                    while keep_going:
-                        if rr_i < 0:
-                            # Row can't be incremented anymore
-                            break_from_rows = True
-                            break
-                        if square[row[rr_i]] == numbers[-1]:
-                            for n in numbers:
-                                if n in [square[r] for r in row]:
-                                    continue
-                                square[row[rr_i]] = n
-                                break
-                            rr_i -= 1
-                        else:
-                            n_index = numbers.index(square[row[rr_i]]) + 1
-                            while numbers[n_index] in square and n_index <= len(numbers):
-                                n_index += 1
-                                if n_index == len(numbers):
-                                    n_index = 0
-                                    rr_i -= 1
-                            while numbers[n_index] in [square[r] for r in row]:
-                                n_index += 1
-                                if n_index == len(numbers):
-                                    for n in numbers:
-                                        if n in [square[r] for r in row]:
-                                            continue
-                                        square[row[rr_i]] = n
-                                        break
-                                    rr_i -= 1
-                                    break
-                            else:
-                                square[row[rr_i]] = numbers[n_index]
-                                if sum_indices(square, row) == magic_num:
-                                    keep_going = False
-            if check_cols:
-                print('All rows match:')
-                print_square(square, size)
-                for i, col in enumerate(cols):
-                    if sum_indices(square, col) == magic_num:
-                        if i == len(cols) - 1:
-                            solved = True
-                        continue
-                    else:
-                        break
-                if solved:
-                    return (square, True)
-                else:
-                    increment_diag = True
-        else:
-            increment_diag = False
-            # Increment the diagnal in reverse order
-            keep_going = True
-            rd_i = len(diag) - 1
-            while keep_going:
-                if rd_i < 0:
+    solved = False
+    while not solved:
+        row_count = 0
+        for i, row in enumerate(rows):
+            while sum_indices(square, row) != magic_num:
+                # Row does not equal magic number
+                # Increment the row in reverse (least significant digit) order
+
+                if not increment_indices(square, row, numbers, [[square[j] for j in rows[r]] for r in range(0, i)]):
                     return (square, False)
-                if square[diag[rd_i]] == numbers[-1]:
-                    square[diag[rd_i]] = 0
-                    increment_diag = True
-                    rd_i -= 1
-                else:
-                    if square[diag[rd_i]] != 0:
-                        n_index = numbers.index(square[diag[rd_i]]) + 1
-                    else:
-                        n_index = 0
-                    while numbers[n_index] in [square[d] for d in diag]:
-                        n_index += 1
-                        if n_index == len(numbers):
-                            square[diag[rd_i]] = 0
-                            rd_i -= 1
-                            increment_diag = True
-                            break
-                    else:
-                        square[diag[rd_i]] = numbers[n_index]
-                        keep_going = False
-            if keep_going:
-                return (square, False)
+
+        # Get row permutations
+        row_perms = [indices_permutations(square, row) for row in rows]
+
+        c = 0
+        p = [0 for _ in range(0, size)]
+        r = size - 1
+        while c < size:
+            while sum_indices(square, cols[c]) != magic_num:
+                # Col does not equal magic number
+                # Rotate permutations
+                if c > 0:
+                    c = 0
+                while p[r] == perms_per_row:
+                    if r > 0:
+                        r -= 1
+                        if r < 0:
+                            return (square, False)
+                for i in range(0, size):
+                    square[rows[r][i]] = row_perms[r][p[r]][i]
+                p[r] += 1
+                while r < size - 1:
+                    r += 1
+                    p[r] = 0
+                    for i in range(0, size):
+                        square[row[r][i]] = row_perms[r][p[r]][i]
+                    p[r] += 1
+            c += 1
+
+        for diag in diags:
+            if sum_indices(square, diag) != magic_num:
+                solved = False
+                break
+            solved = True
+
+        if solved:
+            return (square, True)
 
 def main(args):
     if len(args) != 3:
