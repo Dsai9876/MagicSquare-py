@@ -74,7 +74,6 @@ def solve_square(size, prime_only):
 
     magic_num = int(sum(numbers)/size)
 
-
     perms_per_row = 1
     for i in range(size, 0, -1):
         perms_per_row *= i
@@ -143,12 +142,12 @@ def solve_square(size, prime_only):
             return (square, True)
 
 def main(args):
-    if len(args) != 3:
+    if len(args) != 2:
         return 'Usage: magic_square.py <size> <prime_only:y|n>'
 
     size = int(args[0])
     prime_only = False
-    if args[2].lower() == 'y':
+    if args[1].lower() == 'y':
         prime_only = True
 
     (answer, solved) = solve_square(size, prime_only)
