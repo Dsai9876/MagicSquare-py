@@ -73,7 +73,7 @@ def solve_square(size, prime_only):
     diags.append([i for i in range(0, (size-1)*size, size - 1)])
 
     magic_num = int(sum(numbers)/size)
-    
+
 
     perms_per_row = 1
     for i in range(size, 0, -1):
