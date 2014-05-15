@@ -50,11 +50,35 @@ def is_prime(n):
     return True
 
 def increment_indices(square, indices, numbers, duplicates=None):
-    pass
+    to_inc = [square[i] for i in indices]
+    r_i = len(to_inc) - 1
+
+    while r_i > 0:
+        if to_inc[r_i] == 0:
+            n_i = 0
+        else:
+            n_i = numbers.index(to_inc[r_i]) + 1
+        if n_i == len(numbers):
+            to_inc[r_i] = 0
+            r_i -= 1
+            continue
+        while numbers[n_i] in duplicates:
+            n_i += 1
+            if n_i == len(numbers):
+                return False
+        to_inc[r_i] = numbers[n_i]
+        if 0 in to_inc and r_i < len(to_inc):
+            r_i += 1
+        else:
+            break
+
+    for i, si  in enumerate(indices):
+        square[si] = to_inc[i]
+    return True
 
 def indices_permutations(square, indices):
     to_permute = [square[i] for i in indices]
-    return itertools.permutations(to_permute)
+    return [l for l in itertools.permutations(to_permute)]
 
 def solve_square(size, prime_only):
     square_size = size * size
@@ -81,10 +105,6 @@ def solve_square(size, prime_only):
     # Initialize the square with 0's
     square = [0 for _ in range(0, square_size)]
 
-    # Initialize the first row
-    for i in range(0, size):
-        square[i] = numbers[i]
-
     # DEBUG
     print('Square Size: {}'.format(square_size))
     print('Numbers: {}'.format(numbers))
@@ -95,13 +115,24 @@ def solve_square(size, prime_only):
 
     solved = False
     while not solved:
-        row_count = 0
         for i, row in enumerate(rows):
+            # Initialize the first row
+            if sum([square[i] for i in row]) == 0:
+                for r in row:
+                    for n in numbers:
+                        if n not in square:
+                            square[r] = n
+                            break
+
             while sum_indices(square, row) != magic_num:
                 # Row does not equal magic number
                 # Increment the row in reverse (least significant digit) order
 
-                if not increment_indices(square, row, numbers, [[square[j] for j in rows[r]] for r in range(0, i)]):
+                dups = []
+                for j in range(0, i+1):
+                    for t in rows[j]:
+                        dups.append(square[t])
+                if not increment_indices(square, row, numbers, dups):
                     return (square, False)
 
         # Get row permutations
@@ -117,7 +148,7 @@ def solve_square(size, prime_only):
                 if c > 0:
                     c = 0
                 while p[r] == perms_per_row:
-                    if r > 0:
+                    if r >= 0:
                         r -= 1
                         if r < 0:
                             return (square, False)
@@ -128,7 +159,7 @@ def solve_square(size, prime_only):
                     r += 1
                     p[r] = 0
                     for i in range(0, size):
-                        square[row[r][i]] = row_perms[r][p[r]][i]
+                        square[rows[r][i]] = row_perms[r][p[r]][i]
                     p[r] += 1
             c += 1
 
