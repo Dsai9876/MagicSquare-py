@@ -52,25 +52,32 @@ def is_prime(n):
 def increment_indices(square, indices, numbers, duplicates=None):
     to_inc = [square[i] for i in indices]
     r_i = len(to_inc) - 1
+    numbers_len = len(numbers)
+    to_inc_len = len(to_inc)
+    duplicates_len = len(duplicates)
 
     while r_i > 0:
         if to_inc[r_i] == 0:
             n_i = 0
         else:
             n_i = numbers.index(to_inc[r_i]) + 1
-        if n_i == len(numbers):
+        if n_i == numbers_len:
             to_inc[r_i] = 0
             r_i -= 1
             continue
         while numbers[n_i] in duplicates:
             n_i += 1
-            if n_i == len(numbers):
-                return False
-        to_inc[r_i] = numbers[n_i]
-        if 0 in to_inc and r_i < len(to_inc):
-            r_i += 1
-        else:
-            break
+            if n_i == numbers_len:
+                to_inc[r_i] = 0
+                r_i -= 1
+                break
+        if n_i != numbers_len:
+            to_inc[r_i] = numbers[n_i]
+            duplicates[r_i*(int(duplicates_len/to_inc_len)-1)] = numbers[n_i]
+            if 0 in to_inc and r_i < to_inc_len:
+                r_i += 1
+            else:
+                break
 
     for i, si  in enumerate(indices):
         square[si] = to_inc[i]
