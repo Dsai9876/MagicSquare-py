@@ -20,6 +20,7 @@ import itertools
 __author__ = 'Kevin K. <kbknapp@gmail.com>'
 
 def print_square(square, size):
+    print(('+---'*size) + '+')
     for i in range(0, len(square)):
         if (i+1) % size == 0:
             if square[i] > 99:
@@ -49,43 +50,38 @@ def is_prime(n):
             return False
     return True
 
-def increment_indices(square, indices, numbers, duplicates=None):
-    to_inc = [square[i] for i in indices]
-    r_i = len(to_inc) - 1
+def increment_indices(square, numbers):
+    square_len = len(square)
+    square_dup = [square[i] for i in range(0, square_len)]
+    r_i = square_len - 1
     numbers_len = len(numbers)
-    to_inc_len = len(to_inc)
-    duplicates_len = len(duplicates)
+    n_i = square_len
 
-    while r_i > 0:
-        if to_inc[r_i] == 0:
-            n_i = 0
-        else:
-            n_i = numbers.index(to_inc[r_i]) + 1
-        if n_i == numbers_len:
-            to_inc[r_i] = 0
-            r_i -= 1
-            continue
-        while numbers[n_i] in duplicates:
+    while True:
+        while n_i == square_len:
+            n_i = numbers.index(square_dup[r_i]) + 1
+            if n_i == square_len:
+                square_dup[r_i] = 0
+                r_i -= 1
+                if r_i < 0:
+                    return (square, True)
+
+        while numbers[n_i] in square_dup:
             n_i += 1
-            if n_i == numbers_len:
-                to_inc[r_i] = 0
+            if n_i == square_len:
+                square_dup[r_i] = 0
                 r_i -= 1
                 break
-        if n_i != numbers_len:
-            to_inc[r_i] = numbers[n_i]
-            duplicates[r_i*(int(duplicates_len/to_inc_len)-1)] = numbers[n_i]
-            if 0 in to_inc and r_i < to_inc_len:
+        else:
+            square_dup[r_i] = numbers[n_i]
+            if 0 in square_dup:
                 r_i += 1
+                n_i = 0
             else:
                 break
 
-    for i, si  in enumerate(indices):
-        square[si] = to_inc[i]
-    return True
-
-def indices_permutations(square, indices):
-    to_permute = [square[i] for i in indices]
-    return [l for l in itertools.permutations(to_permute)]
+    square = [square_dup[i] for i in range(0, square_len)]
+    return (square, False)
 
 def solve_square(size, prime_only):
     square_size = size * size
@@ -101,83 +97,56 @@ def solve_square(size, prime_only):
     cols = [[j for j in range(i, (square_size)+i, size)] for i in range(0, size)]
     diags = []
     diags.append([i for i in range(0, (size+1)*size, size + 1)])
-    diags.append([i for i in range(0, (size-1)*size, size - 1)])
+    diags.append([i for i in range((size-1), square_size - 1, size - 1)])
 
     magic_num = int(sum(numbers)/size)
 
-    perms_per_row = 1
-    for i in range(size, 0, -1):
-        perms_per_row *= i
-
-    # Initialize the square with 0's
-    square = [0 for _ in range(0, square_size)]
+    # Initialize the square
+    square = [numbers[i] for i in range(0, len(numbers))]
 
     # DEBUG
     print('Square Size: {}'.format(square_size))
     print('Numbers: {}'.format(numbers))
     print('Magic Number: {}'.format(magic_num))
+    print('Rows: {}'.format(rows))
+    print('Cols: {}'.format(cols))
+    print('Diags: {}'.format(diags))
     print('Initial square:')
     print_square(square, size)
     # END DEBUG
 
     solved = False
     while not solved:
-        for i, row in enumerate(rows):
-            # Initialize the first row
-            if sum([square[i] for i in row]) == 0:
-                for r in row:
-                    for n in numbers:
-                        if n not in square:
-                            square[r] = n
-                            break
-
-            while sum_indices(square, row) != magic_num:
-                # Row does not equal magic number
-                # Increment the row in reverse (least significant digit) order
-
-                dups = []
-                for j in range(0, i+1):
-                    for t in rows[j]:
-                        dups.append(square[t])
-                if not increment_indices(square, row, numbers, dups):
+        i = len(rows) - 1
+        while i > -1:
+            while sum_indices(square, rows[i]) != magic_num:
+                square, no_more_inc = increment_indices(square, numbers)
+                if no_more_inc:
                     return (square, False)
-
-        # Get row permutations
-        row_perms = [indices_permutations(square, row) for row in rows]
-
-        c = 0
-        p = [0 for _ in range(0, size)]
-        r = size - 1
-        while c < size:
-            while sum_indices(square, cols[c]) != magic_num:
-                # Col does not equal magic number
-                # Rotate permutations
-                if c > 0:
-                    c = 0
-                while p[r] == perms_per_row:
-                    if r >= 0:
-                        r -= 1
-                        if r < 0:
-                            return (square, False)
-                for i in range(0, size):
-                    square[rows[r][i]] = row_perms[r][p[r]][i]
-                p[r] += 1
-                while r < size - 1:
-                    r += 1
-                    p[r] = 0
-                    for i in range(0, size):
-                        square[rows[r][i]] = row_perms[r][p[r]][i]
-                    p[r] += 1
-            c += 1
-
-        for diag in diags:
-            if sum_indices(square, diag) != magic_num:
-                solved = False
-                break
-            solved = True
-
+                else:
+                    i = len(rows) - 1
+            else:
+                i -= 1
+        solved = True
+        for col in cols:
+            while sum_indices(square, col) != magic_num:
+                square, no_more_inc = increment_indices(square, numbers)
+                if no_more_inc:
+                    return (square, False)
+                else:
+                    solved = False
+                    break
         if solved:
-            return (square, True)
+            for diag in diags:
+                while sum_indices(square, diag) != magic_num:
+                    square, no_more_inc = increment_indices(square, numbers)
+                    if no_more_inc:
+                        return (square, False)
+                    else:
+                        solved = False
+                        break
+
+    return (square, True)
 
 def main(args):
     if len(args) != 2:
