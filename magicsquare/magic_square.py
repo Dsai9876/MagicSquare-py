@@ -7,7 +7,7 @@ Displays a solution to a Magic Square of a given size
 using regular or prime numbers using the brute force method
 
 Usage:
-magic_square.py <size> <prime_#s_only=y|n>
+magic_square.py <size> <primes_only=y|n>
 e.g.: magic_square.py 6 n
 v0.1
     * Initial version
