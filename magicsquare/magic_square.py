@@ -9,7 +9,11 @@ using regular or prime numbers using the brute force method
 Usage:
 magic_square.py <size> <primes_only=y|n>
 e.g.: magic_square.py 6 n
-v0.1
+v3.0
+    * Treats square as one long number for brute forcing i.e. 1234 for a 2x2 square
+v2.0
+    * Solves rows, then cols, then diagnals
+v1.0
     * Initial version
 """
 
