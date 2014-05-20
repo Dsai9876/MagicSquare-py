@@ -19,6 +19,8 @@ import itertools
 
 __author__ = 'Kevin K. <kbknapp@gmail.com>'
 
+__VERSION = '3.0'
+
 def print_square(square, size):
     print(('+---'*size) + '+')
     for i in range(0, len(square)):
