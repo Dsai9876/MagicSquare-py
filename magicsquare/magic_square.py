@@ -90,7 +90,8 @@ def solve_square(size, prime_only):
 
     if prime_only:
         start = 3
-        numbers = [p for p in range(start, square_size, 2) if is_prime(p)]
+        numbers = [p for p in range(start, square_size**2, 2) if is_prime(p)]
+        numbers = numbers[:(square_size)]
     else:
         start = 1
         numbers = [i for i in range(start, (square_size) + 1)]
@@ -104,7 +105,7 @@ def solve_square(size, prime_only):
     magic_num = int(sum(numbers)/size)
 
     # Initialize the square
-    square = [numbers[i] for i in range(0, len(numbers))]
+    square = [numbers[i] for i in range(0, square_size)]
 
     # DEBUG
     print('Square Size: {}'.format(square_size))
