@@ -23,7 +23,7 @@ import itertools
 
 __author__ = 'Kevin K. <kbknapp@gmail.com>'
 
-__VERSION = '3.0'
+__VERSION = '1.0'
 
 def print_square(square, size):
     print(('+---'*size) + '+')
@@ -112,12 +112,12 @@ def solve_square(size, prime_only):
     square = [numbers[i] for i in range(0, square_size)]
 
     # DEBUG
-    print('Square Size: {}'.format(square_size))
-    print('Numbers: {}'.format(numbers))
+    #print('Square Size: {}'.format(square_size))
+    #print('Numbers: {}'.format(numbers))
     print('Magic Number: {}'.format(magic_num))
-    print('Rows: {}'.format(rows))
-    print('Cols: {}'.format(cols))
-    print('Diags: {}'.format(diags))
+    #print('Rows: {}'.format(rows))
+    #print('Cols: {}'.format(cols))
+    #print('Diags: {}'.format(diags))
     print('Initial square:')
     print_square(square, size)
     # END DEBUG
